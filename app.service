@@ -1,0 +1,14 @@
+[Unit]
+Description=My App
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=pi
+WorkingDirectory=/home/pi/app
+ExecStart=/home/pi/app/run.zsh
+
+[Install]
+WantedBy=multi-user.target 
