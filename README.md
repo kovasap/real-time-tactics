@@ -24,6 +24,13 @@ sudo ufw allow 5000
 sudo ufw allow 9630
 ```
 
+## Deployment
+
+### As a static web page (frontend only)
+
+Use a "release" script like at
+https://github.com/kovasap/reddit-tree/blob/main/release.bash.
+
 ### On Raspberry Pi
 
 ```
