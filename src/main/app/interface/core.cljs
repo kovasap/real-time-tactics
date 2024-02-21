@@ -6,10 +6,13 @@
             [re-frame.core :as rf]
             [reagent.core :as r]
             [app.interface.sente :refer [send-state-to-server!]]
+            [app.interface.initial-db :refer [initial-db]]
             [app.interface.view.main :refer [main]]
-            [app.interface.utils :refer [get-only]]
             [cljs.pprint]
-            [taoensso.timbre :as log]))
+            [taoensso.timbre :as log]
+            ; Need to import things we don't use here so that their re-frame
+            ; stuff is seen.
+            [app.interface.action-queue]))
 
 ;; ----------------------------------------------------------------------------
 ;; Setup
@@ -17,7 +20,7 @@
 (rf/reg-event-db
   :app/setup
   (fn [db _]
-    db))
+    initial-db))
 
 (rf/reg-event-db
   :message
@@ -25,11 +28,19 @@
   (fn [db [_ message]]
     (assoc db :message message)))
 
-(rf/reg-sub
-  :message
-  (fn [db _]
-    (:message db)))
+(doseq [kw [:gridmap :message :characters]]
+  (rf/reg-sub
+    kw
+    (fn [db _] (kw db))))
 
+;; -- Core Loop ---------------------------------------------------------------
+
+; TODO trigger this on some configurable cadence.
+(rf/reg-event-fx
+  :end-turn
+  (fn [cofx _]
+    {:fx [[:dispatch [:queue-npc-actions]]
+          [:dispatch [:execute-actions]]]}))
 
 ;; -- Entry Point -------------------------------------------------------------
 

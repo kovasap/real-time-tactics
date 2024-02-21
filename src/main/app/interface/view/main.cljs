@@ -1,5 +1,6 @@
 (ns app.interface.view.main
   (:require [re-frame.core :as rf]
+            [app.interface.view.gridmap :refer [gridmap-view tile-info-view]]
             [reagent.core :as r]
             ; [ring.middleware.anti-forgery]
             [app.interface.sente :refer [chsk-state login]]
@@ -44,4 +45,5 @@
     [:button.btn.btn-outline-primary {:on-click #(rf/dispatch [:app/setup])}
      "Reset App"]
     [undo-button]]
+   [gridmap-view @(rf/subscribe [:gridmap])]
    [:div @(rf/subscribe [:message])]])
