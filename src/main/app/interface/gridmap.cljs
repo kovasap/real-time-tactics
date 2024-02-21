@@ -124,3 +124,7 @@
   (filter #(not (nil? %))
     (for [[row-idx-shift col-idx-shift] [[1 0] [0 1] [-1 0] [0 -1]]]
       (get-in gridmap [(+ row-idx row-idx-shift) (+ col-idx col-idx-shift)]))))
+
+(defn get-tiles-adjacent-to-character
+  [gridmap character]
+  (get-adjacent-tiles gridmap (get-characters-current-tile gridmap character)))

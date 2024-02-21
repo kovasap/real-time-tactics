@@ -1,6 +1,7 @@
 (ns app.interface.npc-ai 
   (:require
     [re-frame.core :as rf]
+    [app.interface.gridmap :refer [get-tiles-adjacent-to-character]]
     [app.interface.pathfinding
      :refer
      [get-usable-path-to-nearest-player-character
@@ -48,8 +49,22 @@
    gridmap))
 
 
-(fn determine-npc-action
-  [gridmap npc])
+(defn has-adjacent-enemy?
+  [gridmap character]
+  (filter
+    ; TODO fix this condition
+    #(not (= (:character-full-name %) (:full-name character)))
+    (get-tiles-adjacent-to-character gridmap character)))
+
+(defn determine-npc-action
+  [gridmap {:keys [full-name] :as npc}]
+  (cond
+    (has-adjacent-enemy? gridmap npc) {:character-full-name full-name
+                                       :action-type :attack}
+    ; Move
+    :else {:new-position []
+           :character-full-name full-name
+           :action-type :move}))
 
 (rf/reg-event-fx
   :queue-npc-actions
