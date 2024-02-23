@@ -21,7 +21,8 @@
                           character-full-name)))))
 
 (defn execute-attack-action
-  [action db])
+  [action db]
+  db)
 
 (rf/reg-event-db
   :execute-actions

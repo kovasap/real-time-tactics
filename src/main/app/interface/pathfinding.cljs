@@ -3,14 +3,12 @@
             [app.interface.gridmap
              :refer
              [get-tiles
-              has-viewable-player-character?
               get-characters-current-tile
-              get-adjacent-tiles
-              get-characters-current-intention-tile]]
+              get-adjacent-tiles]]
+            [app.interface.constant-game-data :refer [weapons]]
             [app.interface.character-stats
              :refer
-             [get-steps-left-to-move get-insight]]
-            [app.interface.attacking :refer [tile-in-attack-range?]]))
+             [get-steps-left-to-move get-insight]]))
 
 (def impassible 100)
 
@@ -50,61 +48,67 @@
     (vec path)
     (truncate-path (butlast path) steps character))) 
 
-(defn truncate-occupied-path-steps
-  [path]
-  (if (:intention-character-full-name (last path))
-    (truncate-occupied-path-steps (butlast path))
-    (vec path)))
-
 (defn get-path-usable-by-character
   "Truncate the given path so that the given character can actually take it on
   turn end."
   [path character]
-  (truncate-occupied-path-steps
-    (truncate-path path (get-steps-left-to-move character) character)))
+  (truncate-path path (get-steps-left-to-move character) character))
+
+; TODO expand this
+(defn has-viewable-player-character?
+  [tile viewing-character]
+  (:character-full-name tile))
 
 (defn get-visible-player-character-tiles
-  [gridmap viewing-character characters-by-full-name]
-  (get-tiles gridmap
-             #(has-viewable-player-character? %
-                                              viewing-character
-                                              characters-by-full-name)))
+  [gridmap viewing-character]
+  (get-tiles gridmap #(has-viewable-player-character? % viewing-character)))
+                                              
 
 (defn get-path-to-nearest-player-character
-  [gridmap character characters-by-full-name]
+  [gridmap character]
   (first
     (sort-by
       count
       (for [player-character-tile (get-visible-player-character-tiles
                                     gridmap
-                                    character
-                                    characters-by-full-name)]
+                                    character)]
+                                    
         (get-path gridmap
                   (get-characters-current-tile gridmap character)
                   player-character-tile
                   character)))))
 
 (defn get-usable-path-to-nearest-player-character
-  [gridmap character characters-by-full-name]
+  [gridmap character]
   (get-path-usable-by-character
-    (get-path-to-nearest-player-character gridmap
-                                          character
-                                          characters-by-full-name)
+    (get-path-to-nearest-player-character gridmap character)
     character))
 
+
+(defn distance
+  [{from-row-idx :row-idx from-col-idx :col-idx}
+   {to-row-idx :row-idx to-col-idx :col-idx}]
+  (+ (abs (- from-row-idx to-row-idx))
+     (abs (- from-col-idx to-col-idx))))
+
+(defn get-attack-range
+  [{:keys [equipped-weapon]}]
+  (:range (equipped-weapon weapons)))
+
+(defn tile-in-attack-range?
+  [character character-tile tile]
+  (> (inc (get-attack-range character))
+     (distance character-tile tile)
+     0))
+
 (defn get-usable-path-to-nearest-attackable-player-character
-  [gridmap character characters-by-full-name]
-  (let [candidate-path (get-usable-path-to-nearest-player-character
-                         gridmap
-                         character
-                         characters-by-full-name)
+  [gridmap character]
+  (let [candidate-path (get-usable-path-to-nearest-player-character gridmap
+                                                                    character)
         final-location (last candidate-path)]
     (if (empty?
           (get-tiles gridmap
                      #(and (tile-in-attack-range? character final-location %)
-                           (has-viewable-player-character?
-                             %
-                             character
-                             characters-by-full-name))))
+                           (has-viewable-player-character? % character))))
       []
       candidate-path)))

@@ -14,10 +14,6 @@
   [character]
   (calc-insight (:affinities character)))
 
-(defn can-view-character-intention?
- [viewing-character character]
- (>= (get-insight viewing-character) (get-insight character)))
-
 (defn calc-defense
   [affinities]
   (* 1 (:water affinities)))

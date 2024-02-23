@@ -128,3 +128,15 @@
 (defn get-tiles-adjacent-to-character
   [gridmap character]
   (get-adjacent-tiles gridmap (get-characters-current-tile gridmap character)))
+
+(defn clamp-coordinates
+  [gridmap [row-idx col-idx]]
+  (let [max-row (dec (count gridmap))
+        max-col (dec (count (first gridmap)))]
+    [(cond (< max-row row-idx) max-row
+           (neg? row-idx)      0
+           :else               row-idx)
+     (cond (< max-col col-idx) max-col
+           (neg? col-idx)      0
+           :else               col-idx)]))
+  

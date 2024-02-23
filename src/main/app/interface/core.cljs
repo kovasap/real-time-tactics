@@ -12,7 +12,9 @@
             [taoensso.timbre :as log]
             ; Need to import things we don't use here so that their re-frame
             ; stuff is seen.
-            [app.interface.action-queue]))
+            [app.interface.action-queue]
+            [app.interface.npc-ai]
+            [app.interface.keybinds]))
 
 ;; ----------------------------------------------------------------------------
 ;; Setup
@@ -35,12 +37,15 @@
 
 ;; -- Core Loop ---------------------------------------------------------------
 
-; TODO trigger this on some configurable cadence.
 (rf/reg-event-fx
   :end-turn
   (fn [cofx _]
     {:fx [[:dispatch [:queue-npc-actions]]
           [:dispatch [:execute-actions]]]}))
+
+; See
+; https://github.com/Day8/re-frame/blob/master/docs/FAQs/PollADatabaseEvery60.md
+(js/setInterval #(rf/dispatch [:end-turn]) 1000)
 
 ;; -- Entry Point -------------------------------------------------------------
 

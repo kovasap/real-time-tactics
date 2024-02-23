@@ -5,6 +5,9 @@
         com.taoensso/sente {:mvn/version "1.17.0"}
         day8.re-frame/http-fx {:mvn/version "0.2.4"}
         http-kit/http-kit {:mvn/version "2.5.3"}
+        keybind/keybind {:mvn/version "2.2.0"}
+        astar-search/astar-search {:mvn/version "0.2"}
+        tailrecursion/cljs-priority-map {:mvn/version "1.2.1"}
         metosin/reitit {:mvn/version "0.5.18"}
         metosin/ring-http-response {:mvn/version "0.9.3"}
         mount/mount {:mvn/version "0.1.16"}

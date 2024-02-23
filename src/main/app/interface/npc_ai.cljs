@@ -23,32 +23,6 @@
    :attack-in-range get-usable-path-to-nearest-attackable-player-character})
 
 
-(defn make-move-intention
-  [{:keys [full-name]} path gridmap]
-  (if (> 2 (count path))
-    gridmap
-    (let [steps (subvec path 1 (count path))
-          {to-row-idx :row-idx to-col-idx :col-idx} (last path)]
-      (->
-        gridmap
-        ; Add waypoints
-        ((apply comp
-          (for [{path-row-idx :row-idx path-col-idx :col-idx} steps]
-           #(assoc-in % [path-row-idx path-col-idx :waypoint-for] full-name))))
-        (#(clear-intentions % full-name))
-        (assoc-in [to-row-idx to-col-idx :intention-character-full-name]
-                  full-name)))))
-
-(defn update-move-intention
-  "Returns a gridmap with :intention-character-full-name tile keys filled in."
-  [{:keys [ai-behavior] :as character} characters-by-full-name gridmap]
-  ((partial
-    make-move-intention
-    character
-    ((ai-behavior ai-behaviors) gridmap character characters-by-full-name))
-   gridmap))
-
-
 (defn has-adjacent-enemy?
   [gridmap character]
   (filter
@@ -57,14 +31,19 @@
     (get-tiles-adjacent-to-character gridmap character)))
 
 (defn determine-npc-action
-  [gridmap {:keys [full-name] :as npc}]
+  [gridmap {:keys [full-name ai-behavior] :as npc}]
   (cond
+    ; Attack
     (has-adjacent-enemy? gridmap npc) {:character-full-name full-name
-                                       :action-type :attack}
+                                       :action-type         :attack}
     ; Move
-    :else {:new-position []
-           :character-full-name full-name
-           :action-type :move}))
+    :else                             {:new-position        (last
+                                                              ((ai-behavior
+                                                                ai-behaviors)
+                                                               gridmap
+                                                               npc))
+                                       :character-full-name full-name
+                                       :action-type         :move}))
 
 (rf/reg-event-fx
   :queue-npc-actions
