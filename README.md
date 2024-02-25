@@ -1,4 +1,16 @@
-# My CLJS App Template
+# Real Time Tactics
+
+## Core Idea
+
+A roguelike style game with simultaneous turns that automatically pass every ~1
+second.  This should make multiplayer possible.
+
+The player character should die in only a few hits (like dark and darker), as
+opposed to fighting the same mob for many turns like in a lot of roguelikes.
+
+## Prior Art
+
+ - Isleward: https://www.isleward.com/world/
 
 ## Setup
 
